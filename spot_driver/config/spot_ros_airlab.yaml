@@ -3,9 +3,9 @@
 /**:
   ros__parameters:
     # Spot Login Information
-    username: "admin"
-    password: "jtidtt7fbxh5"
-    hostname: "192.168.80.3"
+    username: "???"
+    password: "???"
+    hostname: "???"
 
     # Status Updates from Spot
     metrics_rate: 0.04
