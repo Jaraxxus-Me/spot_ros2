@@ -104,6 +104,37 @@ The full list of interfaces provided by the driver can be explored via `ros2 top
 ## Examples
 See [`spot_examples`](spot_examples/) for some more complex examples of using the ROS 2 driver to control Spot, which typically use the action servers provided by the driver. 
 
+## IsaacPlan
+By default, we have installed `isaacplan` and `fastdownward` using the previous installation commands.
+To test the installation:
+```
+export FD_EXEC_PATH=/root/ros_ws/src/spot_ros2/downward # in docker container
+python3 isaacplan/scripts/hl_learning/test_online.py
+```
+You should expect seeing:
+```
+pybullet build time: Nov 28 2023 23:45:17
+Generating out-of-domain test tasks...
+Generating task 0...
+/usr/local/lib/python3.10/dist-packages/scipy/optimize/_optimize.py:284: RuntimeWarning: Values in x were outside bounds during a minimize step, clipping to bounds
+  warnings.warn("Values in x were outside bounds during a "
+Task 0 generated.
+[CogMan] Reset called.
+[Spot Wrapper] Replanning with base approach.
+Sampling 1 times
+Sampling 1 times
+Sampling 0 times
+Sampling 1 times
+Sampling 0 times
+Sampling 1 times
+Sampling 2 times
+Sampling 3 times
+Expected atoms execution monitor triggered replanning because of these atoms: {HandSees(robot:robot_arm, tgt1:target)}
+[CogMan] Replanning triggered.
+[Spot Wrapper] Replanning with base approach.
+Sampling 0 times
+```
+
 ## Images
 Perception data from Spot is handled through the `spot_image_publishers.launch.py` launchfile, which is launched by default from the driver. If you want to only view images from Spot, without bringing up any of the nodes to control the robot, you can also choose to run this launchfile independently.
 

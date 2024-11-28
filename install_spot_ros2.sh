@@ -29,6 +29,7 @@ sudo apt install -y ros-$ROS_DISTRO-joint-state-publisher-gui ros-$ROS_DISTRO-tf
 # Install the dist-utils
 sudo apt-get install -y python3-distutils
 sudo apt-get install -y python3-apt
+sudo apt install cmake g++ make
 sudo pip3 install --force-reinstall -v "setuptools==59.6.0"
 
 # Install bosdyn_msgs - automatic conversions of BD protobufs to ROS messages
@@ -41,3 +42,12 @@ rm /tmp/ros-humble-bosdyn_msgs_${MSG_VERSION}-jammy_${ARCH}.run
 wget -q -O /tmp/spot-cpp-sdk_${SDK_VERSION}_${ARCH}.deb https://github.com/bdaiinstitute/spot-cpp-sdk/releases/download/v${SDK_VERSION}/spot-cpp-sdk_${SDK_VERSION}_${ARCH}.deb
 sudo dpkg -i /tmp/spot-cpp-sdk_${SDK_VERSION}_${ARCH}.deb
 rm /tmp/spot-cpp-sdk_${SDK_VERSION}_${ARCH}.deb
+
+# Install IsaacPlan
+cd isaac_plan
+pip install -v -e .
+cd ..
+
+# Install FastDownward
+cd downward
+./build.py
