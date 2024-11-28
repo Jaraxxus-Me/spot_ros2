@@ -75,7 +75,7 @@ from google.protobuf.wrappers_pb2 import DoubleValue
 from rclpy.node import Node
 from tf2_ros import TransformStamped
 
-from spot_examples.simple_spot_commander import SimpleSpotCommander
+from spot_plan.simple_spot_commander import SimpleSpotCommander
 from spot_msgs.action import RobotCommand as RobotCommandAction  # type: ignore
 
 ContinuousTrajectory1D = Callable[[float], float]

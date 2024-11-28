@@ -82,6 +82,7 @@ class WalkForward:
             goal_heading=world_t_goal.angle,
             frame_name=VISION_FRAME_NAME,  # use Boston Dynamics' frame conventions
         )
+        logging.info(f"Sending goal: {world_t_goal.x}, {world_t_goal.y}, {world_t_goal.angle}")
         action_goal = RobotCommand.Goal()
         convert(proto_goal, action_goal.command)
         self._robot_command_client.send_goal_and_wait("walk_forward", action_goal)

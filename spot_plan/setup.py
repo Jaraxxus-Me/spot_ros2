@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = "spot_examples"
+package_name = "spot_plan"
 
 setup(
     name=package_name,
@@ -19,10 +19,11 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "walk_forward = spot_examples.walk_forward:main",
-            "arm_simple = spot_examples.arm_simple:main",
-            "send_inverse_kinematics_requests = spot_examples.send_inverse_kinematics_requests:main",
-            "batch_trajectory = spot_examples.batch_trajectory:main",
+            "walk_forward = spot_plan.walk_forward:main",
+            "arm_simple = spot_plan.arm_simple:main",
+            "send_inverse_kinematics_requests = spot_plan.send_inverse_kinematics_requests:main",
+            "batch_trajectory = spot_plan.batch_trajectory:main",
+            "walk_around = spot_plan.walk_around_localize:main",
         ],
     },
 )

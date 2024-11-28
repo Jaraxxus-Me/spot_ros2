@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>spot_examples</name>
+  <name>spot_plan</name>
   <version>0.0.0</version>
-  <description>Examples of using ROS 2 to control Spot</description>
-  <maintainer email="engineering@theaiinstitute.com">AI Institute</maintainer>
+  <description>Using ROS 2 to control a Spot do Bi-level Planning</description>
+  <maintainer email="bowenli2@andrew.cmu.edu">CMU</maintainer>
   <license>MIT</license>
 
   <exec_depend>bdai_ros2_wrappers</exec_depend>
