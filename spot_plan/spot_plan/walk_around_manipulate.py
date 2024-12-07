@@ -18,8 +18,12 @@ from bosdyn.api.geometry_pb2 import SE2Velocity, SE2VelocityLimit, Vec2
 from bosdyn.client.robot_command import RobotCommandBuilder
 from bosdyn.api.graph_nav import map_pb2, nav_pb2
 from bosdyn.client import ResponseError, TimedOutError, math_helpers
+from bosdyn.client.frame_helpers import get_odom_tform_body
+from bosdyn.client.graph_nav import GraphNavClient
 from bosdyn.client import create_standard_sdk
 from bosdyn.client.util import authenticate
+from bosdyn.client.sdk import Robot
+from bosdyn.api.spot import robot_command_pb2 as spot_command_pb2
 from bosdyn_msgs.conversions import convert
 from rclpy.node import Node
 # use IsaacPlan helpers
@@ -30,15 +34,13 @@ from IsaacPlan.spot_utils.utils import get_graph_nav_dir, verify_estop
 from spot_msgs.action import RobotCommand  # type: ignore
 
 from .simple_spot_commander import SimpleSpotCommander
-from .localize import SpotLocalizer
+from .walk_around_localize import SpotLocalizer
 
 # Where we want the robot to walk to relative to itself
-WORLD_GOAL = [SE2Pose(1.8, 0.4, 3.14), SE2Pose(1.6, 0.4, 1.23)]
+HAND_GOAL = [SE2Pose(1.8, 0.3, 3.14)]
 
-NUM_LOCALIZATION_RETRIES = 10
-LOCALIZATION_RETRY_WAIT_TIME = 1.0
 
-class WalkAround:
+class WalkManiuplate:
     def __init__(self, hostname: str, \
                  robot_name: Optional[str] = None, node: Optional[Node] = None) -> None:
         self._logger = logging.getLogger(fqn(self.__class__))
@@ -61,7 +63,7 @@ class WalkAround:
                                 approach_required=False)
         utils.update_config(args)
         utils.reset_config({
-        "spot_graph_nav_map": "debug_place"
+        "spot_graph_nav_map": "desk_debug"
         })
         sdk = create_standard_sdk('GraphNavTestClient')
         path = get_graph_nav_dir()

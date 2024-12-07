@@ -23,6 +23,7 @@ ros2 run spot_plan <example_node>
 Follow the links on each of the node names for more detailed documentation about how each example works, possible command line arguments, and other safety considerations you may need to take into account. 
 
 * [`walk_forward`](docs/walk_forward.md): A simple example that shows how to use ROS 2 to send `RobotCommand` goals to the Spot driver. If you are new to Spot and ROS 2, we recommend starting here.
+* [`walk_around`](docs/walk_around.md): A simple example that shows how to use ROS 2 navigate a predefined map.
 * [`arm_simple`](docs/arm_simple.md): An example of converting the [BD Simple Arm Motion](https://dev.bostondynamics.com/python/examples/arm_simple/readme) example to use ROS 2. 
 * [`send_inverse_kinematic_requests`](docs/send_inverse_kinematics_requests.md): An example that shows how to send inverse kinematics requests to the Spot Arm using ROS 2. 
 * [`batch_trajectory`](docs/batch_trajectory.md): An example that shows how to send very long trajectories to Spot using ROS2. 

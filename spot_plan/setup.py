@@ -24,6 +24,7 @@ setup(
             "send_inverse_kinematics_requests = spot_plan.send_inverse_kinematics_requests:main",
             "batch_trajectory = spot_plan.batch_trajectory:main",
             "walk_around = spot_plan.walk_around_localize:main",
+            "localize = spot_plan.localize:main",
         ],
     },
 )
