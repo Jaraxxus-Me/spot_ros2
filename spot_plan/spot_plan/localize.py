@@ -217,26 +217,26 @@ class Localize:
             self._logger.error("Robot did not stand message was " + result.message)
             return False
         self._logger.info("Successfully stood up.")
-        # Localize the robot.
-        world_pose = self.localizer.get_last_robot_pose()
-        self._logger.info(f"Robot localized at {world_pose}")
         # calculate the hand pose in the world frame
-        body_T_hand = self.tf_listener.lookup_a_tform_b(self.body_frame_name, self.hand_frame_name)
-        body_T_hand_se3 = math_helpers.SE3Pose(
-            body_T_hand.transform.translation.x,
-            body_T_hand.transform.translation.y,
-            body_T_hand.transform.translation.z,
-            math_helpers.Quat(
-                body_T_hand.transform.rotation.w,
-                body_T_hand.transform.rotation.x,
-                body_T_hand.transform.rotation.y,
-                body_T_hand.transform.rotation.z,
-            ),
-        )
+        while True:
+            time.sleep(1)
+            body_T_hand = self.tf_listener.lookup_a_tform_b(self.body_frame_name, self.hand_frame_name)
+            body_T_hand_se3 = math_helpers.SE3Pose(
+                body_T_hand.transform.translation.x,
+                body_T_hand.transform.translation.y,
+                body_T_hand.transform.translation.z,
+                math_helpers.Quat(
+                    body_T_hand.transform.rotation.w,
+                    body_T_hand.transform.rotation.x,
+                    body_T_hand.transform.rotation.y,
+                    body_T_hand.transform.rotation.z,
+                ),
+            )
 
-        world_T_body = self.localizer.get_last_robot_pose()
-        world_T_hand = world_T_body * body_T_hand_se3
-        self._logger.info(f"Hand pose in world frame: {world_T_hand}")
+            world_T_body = self.localizer.get_last_robot_pose()
+            self._logger.info(f"Robot localized at {world_T_body}")
+            world_T_hand = world_T_body * body_T_hand_se3
+            self._logger.info(f"Hand pose in world frame: {world_T_hand}")
         return True
 
 

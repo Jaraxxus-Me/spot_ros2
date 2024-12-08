@@ -33,7 +33,8 @@ from .simple_spot_commander import SimpleSpotCommander
 from .localize import SpotLocalizer
 
 # Where we want the robot to walk to relative to itself
-WORLD_GOAL = [SE2Pose(1.8, 0.4, 3.14), SE2Pose(1.6, 0.4, 1.23)]
+# WORLD_GOAL = [SE2Pose(1.8, 0.4, 3.14), SE2Pose(1.6, 0.4, 1.23)]
+WORLD_GOAL = [SE2Pose(2.2, 0.6, 3.141)]
 
 NUM_LOCALIZATION_RETRIES = 10
 LOCALIZATION_RETRY_WAIT_TIME = 1.0
