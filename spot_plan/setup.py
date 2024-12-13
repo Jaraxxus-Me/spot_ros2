@@ -25,6 +25,7 @@ setup(
             "batch_trajectory = spot_plan.batch_trajectory:main",
             "walk_around = spot_plan.walk_around_localize:main",
             "localize = spot_plan.localize:main",
+            "walk_manipulate = spot_plan.walk_around_manipulate:main",
         ],
     },
 )

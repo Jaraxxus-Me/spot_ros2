@@ -39,12 +39,12 @@ from .walk_around_localize import SpotLocalizer
 # Where we want the robot to walk to relative to itself
 HYBRID_DELTA = [
     {
-        "body": SE3Pose(0.3, -0.1, 0, Quat(0, 0, 0, 1)),
-        "hand": SE2Pose(0.3, 0.0, 0, Quat(0, 0, 0, 1))
+        "body": SE3Pose(0.0, 0.0, 0, Quat(1, 0, 0, 0)),
+        "hand": SE3Pose(0.3, 0.0, 0, Quat(1, 0, 0, 0))
     },
     {
-        "body": SE2Pose(-0.2, -0.2, 0, Quat.from_yaw(30)),
-        "hand": SE2Pose(0.1, 0.1, 0, Quat.from_pitch(30))
+        "body": SE3Pose(0.0, 0.0, 0, Quat(1, 0, 0, 0)),
+        "hand": SE3Pose(0.0, 0.0, 0.3, Quat(1, 0, 0, 0))
     }
 ]
 
@@ -54,7 +54,6 @@ class WalkManiuplate:
                  robot_name: Optional[str] = None, node: Optional[Node] = None) -> None:
         self._logger = logging.getLogger(fqn(self.__class__))
         node = node or ros_scope.node()
-        self.finished = False
         if node is None:
             raise ValueError("no ROS 2 node available (did you use bdai_ros2_wrapper.process.main?)")
         self._robot_name = robot_name
@@ -75,7 +74,7 @@ class WalkManiuplate:
                                 approach_required=False)
         utils.update_config(args)
         utils.reset_config({
-        "spot_graph_nav_map": "desk_debug"
+        "spot_graph_nav_map": "debug_place"
         })
         sdk = create_standard_sdk('GraphNavTestClient')
         path = get_graph_nav_dir()
@@ -87,7 +86,7 @@ class WalkManiuplate:
         self.localizer = SpotLocalizer(robot, path)
         self._robot_sdk = robot
         # Store the goal points in the world frame.
-        self.accomplished_world_goals = [False, False] * HYBRID_DELTA
+        self.accomplished_world_goals = [[False, False]] * len(HYBRID_DELTA)
         self.at = 0
         
 
@@ -113,12 +112,12 @@ class WalkManiuplate:
             return False
         self._logger.info("Successfully stood up.")
         # Localize the robot.
-        time.wait(1)
+        time.sleep(1)
         _, _ = self.localize_body_hand()
         return True
     
     def localize_body_hand(self) -> None:
-        body_T_hand = self.tf_listener.lookup_a_tform_b(self.body_frame_name, self.hand_frame_name)
+        body_T_hand = self._tf_listener.lookup_a_tform_b(self.body_frame_name, self.hand_frame_name)
         body_T_hand_se3 = math_helpers.SE3Pose(
             body_T_hand.transform.translation.x,
             body_T_hand.transform.translation.y,
@@ -138,16 +137,19 @@ class WalkManiuplate:
         return world_T_body, world_T_hand
 
     def achieve_next_goal(self) -> None:
-        self._logger.info("Achieving Goal {}".format(len(self.at)))
+        self._logger.info("Achieving Goal {}".format(self.at))
         body_finished = False
         hand_finished = False
         self._logger.info("{}".format(HYBRID_DELTA[self.at]))
         self.localizer.localize()
         current_se3_pose = self.localizer.get_last_robot_pose()
         self._logger.info(f"Robot pose in world frame: {current_se3_pose}")
+        self._logger.info(f"Robot pose in SE2 frame: {current_se3_pose.get_closest_se2_transform()}")
         rel_pose = HYBRID_DELTA[self.at]["body"]
-        desired_pose = (current_se3_pose @ rel_pose).get_closest_se2_transform()
-        self.navigate_to_relative_pose(rel_pose)
+        desired_pose = (current_se3_pose * rel_pose).get_closest_se2_transform()
+        rel_pose_se2 = rel_pose.get_closest_se2_transform()
+        self._logger.info(f"Desired pose in SE2 frame: {desired_pose}")
+        self.navigate_to_relative_pose(rel_pose_se2)
         # check current pose
         self.localizer.localize()
         current_se2_pose = self.localizer.get_last_robot_pose().get_closest_se2_transform()
@@ -159,9 +161,11 @@ class WalkManiuplate:
             self._logger.info("Successfully walked to next goal")
             body_finished = True
             _, hand_pose = self.localize_body_hand()
+            self._logger.info(f"Hand pose in world frame: {hand_pose}")
             rel_pose = HYBRID_DELTA[self.at]["hand"]
-            desired_pose = hand_pose @ rel_pose
-            self.move_hand_to_relative_pose(rel_pose)
+            desired_pose = hand_pose * rel_pose
+            self._logger.info(f"Desired hand pose in world frame: {desired_pose}")
+            self.move_hand_to_relative_pose(rel_pose, 2)
             # check current pose
             _, hand_pose = self.localize_body_hand()
             dis = np.array([hand_pose.x - desired_pose.x,
@@ -176,7 +180,8 @@ class WalkManiuplate:
             self.at += 1
 
     def move_hand_to_relative_pose(self,
-            relative_pose: math_helpers.SE3Pose) -> None:
+            relative_pose: math_helpers.SE3Pose,
+            seconds: int) -> None:
         """Execute a relative move.
 
         The pose is dx, dy, dyaw relative to the robot's body.
@@ -202,18 +207,21 @@ class WalkManiuplate:
             ),
         )
 
-        odom_T_new_hand = odom_T_hand @ relative_pose
-        self._logger.info(f"Relative pose: {relative_pose}")
-        out_tform_goal = odom_t_robot_se2 * relative_pose
-        proto_goal = RobotCommandBuilder.synchro_se2_trajectory_point_command(
-            goal_x=out_tform_goal.x,
-            goal_y=out_tform_goal.y,
-            goal_heading=out_tform_goal.angle,
-            frame_name=ODOM_FRAME_NAME)
-        logging.info(f"Sending goal: {out_tform_goal.x}, {out_tform_goal.y}, {out_tform_goal.angle}")
+        odom_T_new_hand = odom_T_hand * relative_pose
+        arm_command = RobotCommandBuilder.arm_pose_command(
+            odom_T_new_hand.x,
+            odom_T_new_hand.y,
+            odom_T_new_hand.z,
+            odom_T_new_hand.rot.w,
+            odom_T_new_hand.rot.x,
+            odom_T_new_hand.rot.y,
+            odom_T_new_hand.rot.z,
+            ODOM_FRAME_NAME,
+            seconds,
+        )
         action_goal = RobotCommand.Goal()
-        convert(proto_goal, action_goal.command)
-        self._robot_command_client.send_goal_and_wait("walk_forward", action_goal)
+        convert(arm_command, action_goal.command)
+        self._robot_command_client.send_goal_and_wait("arm_move", action_goal)
 
     def navigate_to_relative_pose(self,
             relative_pose: math_helpers.SE2Pose) -> None:
@@ -272,8 +280,13 @@ def main(args: argparse.Namespace) -> int:
     walker = WalkManiuplate(args.hostname, args.robot, main.node)
     walker.initialize_robot()
     while not walker.finished():
-        time.wait(1)
+        time.sleep(1)
         walker.achieve_next_goal()
+    while True:
+        time.sleep(1)
+        body_pose, hand_pose = walker.localize_body_hand()
+        walker._logger.info(f"Body pose: {body_pose}")
+        walker._logger.info(f"Hand pose: {hand_pose}")
     return 0
 
 
