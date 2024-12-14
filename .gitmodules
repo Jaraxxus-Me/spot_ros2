@@ -4,9 +4,6 @@
 [submodule "ros_utilities"]
 	path = ros_utilities
 	url = https://github.com/bdaiinstitute/ros_utilities.git
-[submodule "isaacplan"]
-	path = isaacplan
-	url = https://github.com/Jaraxxus-Me/IsaacPlan.git
 [submodule "downward"]
 	path = downward
 	url = https://github.com/aibasel/downward.git
