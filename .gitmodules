@@ -10,3 +10,4 @@
 [submodule "neupi"]
 	path = neupi
 	url = https://github.com/Jaraxxus-Me/NeuPI.git
+	ignore = all

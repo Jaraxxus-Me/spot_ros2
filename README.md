@@ -31,7 +31,7 @@ This package is tested for Ubuntu 22.04 and ROS 2 Humble, which can be installed
 ## Installation
 In your ROS 2 workspace `src` directory, clone the repository:
 ```bash
-git clone https://github.com/bdaiinstitute/spot_ros2.git
+git clone https://github.com/Jaraxxus-Me/spot_ros2.git
 ```
 and initialize and install the submodules:
 ```bash
